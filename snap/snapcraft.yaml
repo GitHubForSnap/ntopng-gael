@@ -1,0 +1,129 @@
+name: ntopng-gael
+version: "v5.6"
+base: core22
+summary: High-speed web-based traffic analysis and flow collection
+description: |
+  ntopng is a network traffic probe that provides 360° Network visibility, with its ability to gather traffic information from traffic mirrors, Netflow exporters, SNMP devices, Firewall logs, Intrusion Detection systems
+
+grade: stable
+confinement: strict
+
+architectures:
+  - build-on: arm64
+  - build-on: armhf
+  - build-on: amd64
+
+license: "GPL-3.0"
+
+apps:
+  ntopng:
+    command: usr/local/bin/ntopng
+    plugs:
+      - network-bind
+
+  redis-cli:
+    command: usr/bin/redis-cli
+    completer: usr/share/bash-completion/completions/redis-cli  # TODO
+    plugs:
+      - network
+
+  redis-server:
+    command: usr/bin/redis-server
+    plugs:
+      - network-bind
+
+parts:
+  nDPI:
+    plugin: autotools
+    source: https://github.com/ntop/nDPI.git
+    source-type: git
+    source-tag: 4.6
+
+  ntopng:
+    after: [nDPI]
+
+    plugin: autotools
+    autotools-configure-parameters:
+      - --with-ndpi-static-lib="/root/parts/nDPI/install/usr/lib"
+
+    build-environment:
+      - NDPI_HOME: "/root/parts/nDPI/build"
+
+    source: https://github.com/ntop/ntopng.git
+    source-type: git
+    source-tag: 5.6
+
+    build-packages:
+      - libxml2-dev
+      - libpcap-dev
+      - rrdtool
+      - librrd-dev
+      - pkg-config
+      - libsqlite3-dev
+      - libhiredis-dev
+      - libmaxminddb-dev
+      - libcurl4-openssl-dev
+      - libpango1.0-dev
+      - libcairo2-dev
+      - libnetfilter-queue-dev
+      - zlib1g-dev
+      - libssl-dev
+      - libcap-dev
+      - libnetfilter-conntrack-dev
+      - libreadline-dev
+      - libjson-c-dev
+      - libldap2-dev
+      - rename
+      - libsnmp-dev
+      - libexpat1-dev
+      - libmaxminddb-dev
+      - libradcli-dev
+      - libjson-c-dev
+      - libzmq3-dev
+      - libmariadb-dev
+
+    stage-packages:
+      - redis-server
+      - redis-tools
+
+      - libpcap0.8
+      - libx11-6
+      - libxau6
+      - libxdmcp6
+      - libxext6
+      - libxrender1
+      - libcairo2
+      - libcurl4
+      - libdatrie1
+      - libdbi1
+      - libfontconfig1
+      - libfribidi0
+      - libgraphite2-3
+      - libharfbuzz0b
+      - libicu70
+      - libldap-2.5-0
+      - libmariadb3
+      - libmaxminddb0
+      - libnghttp2-14
+      - libnorm1
+      - libpango-1.0-0
+      - libpangocairo-1.0-0
+      - libpangoft2-1.0-0
+      - libpgm-5.3-0
+      - libpixman-1-0
+      - libpsl5
+      - libradcli4
+      - librrd8
+      - librtmp1
+      - libsasl2-2
+      - libsnmp40
+      - libsodium23
+      - libthai0
+      - libxcb-render0
+      - libxcb-shm0
+      - libxcb1
+      - libxml2
+      - libzmq5
+      - libhiredis0.14
+
+
